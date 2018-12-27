@@ -1,0 +1,67 @@
+markdown 插入视频，图片
+
+<iframe 
+    height=450 
+    width=800 
+    src="../../../Python 3网络爬虫开发实战 ,崔庆才著 ,2018.04 ,Pg594.pdf" 
+    frameborder=0 
+    allowfullscreen>
+</iframe>
+
+<iframe 
+    width="120" 
+    height="45" 
+    src="../../../verifyimagepage.jpg"
+    frameborder="0" 
+    allowfullscreen>
+</iframe>
+
+
+// ===================== python ========================
+python-docx
+pymongo
+pandas
+numpy
+from openpyxl import Workbook
+
+手写爬虫框架
+
+flask
+http://docs.jinkan.org/docs/flask/quickstart.html#a-minimal-application
+
+python-eve
+http://docs.python-eve.org/en/latest/
+
+Python-schema
+xlrd,xlwt  http://www.lexicon.net/sjmachin/xlrd.html
+https://xlrd.readthedocs.io/en/latest/unicode.html
+
+// ===================== nodeJS ========================
+const promisify = require('util').promisify;
+
+express
+http://expressjs.com/zh-cn/4x/api.html
+使用中间件：app.user([function])
+
+var app = express();
+app.use(function (req, res, next) {
+  console.log('Time:', Date.now());
+  next();
+});
+
+
+exceljs
+
+promise
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
+officegen
+https://github.com/Ziv-Barber/officegen
+
+单元测试
+mocha  https://github.com/JerryC8080/unittest-demo
+windows 需要把mocha添加到windows环境变量中D:\test\node_modules\mocha\bin
+http://www.ruanyifeng.com/blog/2015/12/a-mocha-tutorial-of-examples.html
