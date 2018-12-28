@@ -20,6 +20,33 @@ $if(mathfont)$
 $endif$
 ```
 
+```
+  \usepackage{fontspec}     % 允許設定字體
+  \usepackage{xeCJK}        % 分開設置中英文字型
+  \setCJKmainfont{WenQuanYi Micro Hei}  % 設定中文字型
+  \setmainfont{Ubuntu}  % 設定英文字型
+  \setromanfont{Ubuntu}     % 字型
+  \setmonofont{Ubuntu}
+  \linespread{1.2}\selectfont   % 行距
+  \XeTeXlinebreaklocale "zh"    % 針對中文自動換行
+  \XeTeXlinebreakskip = 0pt plus 1pt % 字與字之間加入0pt至1pt的間距，確保左右對整齊
+  \parindent 0em        % 段落縮進
+  \setlength{\parskip}{20pt}    % 段落之間的距離
+  \ifxetex
+```
+
+命令
+
+```
+pandoc input.md -o markdown.pdf --latex-engine=xelatex  -V geometry:margin=.5in -M geometry:"top=1in, inner=1in,outer=1in,bottom=1in, headheight=1ex, headsep=1ex"  --template ./user.latex
+
+
+pandoc input.md -o markdown.pdf --latex-engine=xelatex   --template ./user.latex
+
+
+
+```
+
 文件user.latex
 
 ```
