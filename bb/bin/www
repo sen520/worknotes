@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+
+const fetch = require('../inbox');
+const app = require('../index');
+const config = require('../config.json');
+
+// Which port to listen on
+app.set('port', config.port || 80);
+
+// Start listening for HTTP requests
+var server = app.listen(app.get('port'), function() {
+  var host = server.address().address;
+  var port = server.address().port;
+
+  console.log('Example app listening at http://%s:%s', host, port);
+});
+
+// Check email for every 15 minutes
+const DELAY_15_MINUTES = 15 * 60 * 1000;
+if (config.production) {
+  setInterval(fetch, DELAY_15_MINUTES);
+}
