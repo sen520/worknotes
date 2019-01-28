@@ -266,7 +266,54 @@ scrapinghub/splash   latest              3926e5aac017        11 months ago      
 
 #### 2、使用镜像ID来删除镜像
 
+docker rmi 后面跟上镜像的ID（也可以是区分的部分ID串前缀），会尝试先删除所有指向该镜像的标签，然后删除该镜像文件本身。
 
+但，有该镜像创建的容器存在时，镜像文件默认是无法被删除的。
 
+`docker ps -a` 可以查看本机上存在的所有容器
 
+```
 
+```
+
+使用`-f` 可以强行删除（不推荐）
+
+应该是先删除容器，在删除镜像
+
+```
+sen@TR-PC MINGW64 /d/Program Files/Docker Toolbox
+$ docker rm 506537568a78
+506537568a78
+
+sen@TR-PC MINGW64 /d/Program Files/Docker Toolbox
+$ docker rmi 20bb25d32758
+Untagged: ubuntu:latest
+Untagged: ubuntu@sha256:945039273a7b927869a07b375dc3148de16865de44dec8398672977e050a072e
+Deleted: sha256:20bb25d32758db4f91b18a9581794cfaa6a8c5fbad80093e9a9e42211e131a48
+Deleted: sha256:7b2bffd1a66cacd8cd989f06cee49a1fba28c1d149806a0f7b536229270ddfd2
+Deleted: sha256:80f6e37bc2041d00cbd950851c20f0f16b81b8f323290f354279a8a7b62bb985
+Deleted: sha256:2069390c92947b82f9333ac82a40e3eeaa6662ae84600a9b425dd296af105469
+Deleted: sha256:adcb570ae9ac70d0f46badf9ee0ecd49fbec2ae0bc26254653f99afa60046a4e
+
+sen@TR-PC MINGW64 /d/Program Files/Docker Toolbox
+$ docker images
+REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE
+scrapinghub/splash   latest              3926e5aac017        11 months ago       1.22GB
+```
+
+#### 3、清理镜像
+
+`docker image prune`清理临时镜像文件
+
+- `-a` , `-all` : 删除所有无用镜像，不光是临时镜像
+- `-filter filter` :  只清理符合给定过滤器的镜像
+- `-f` , `-force` ：强行删除镜像，而不进行提示确认 
+
+清理临时的遗留镜像文件层，，最后会提示释放的存储空间
+
+```
+$ docker image prune -f
+Total reclaimed space: 0B
+```
+
+## 五、创建镜像
