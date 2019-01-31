@@ -317,3 +317,129 @@ Total reclaimed space: 0B
 ```
 
 ## 五、创建镜像
+
+#### 1、基于已有的容器创建
+
+`docker [container] commit [options] CONTAINER  [REPOSITORY[:TAG]]`
+
+- `-a` ,  `--author=""`  :  作者信息；
+- `-c` ,  `--change=[]`  :  提交的时候执行Dockerfile 指令，包括`CMD|ENTRYPOINT|ENV|EXPOSE|LABEL|ONBULLD|USER|VOLUME|WORKDIR `等；
+- `-m` ,  `--message=""` :  提交信息；
+- `-p` , `--pause=true`  :  提交时暂停容器运行
+
+启动一个镜像，并在其中进行修改操作
+
+​	创建一个test文件
+
+```
+$ docker run -it ubuntu /bin/bash
+root@632d42bede53:/# touch test
+root@632d42bede53:/# exit
+exit
+```
+
+此时该容器和原ubuntu镜像相比，已经发生了改变。可以用docker commit 命令来提交一个新的镜像。提交时，可以使用ID或名称来指定容器。
+
+顺利的话，可以返回新创建镜像的ID信息
+
+```
+$ docker commit -m "Added a new file" -a "Docker Newbee" 632d42bede53 test:0.1
+sha256:eb34cf66ffd8bde3e275853fab4c9840ac3c06d5a8d0472e9d32f82b7c4a6a1f
+
+$ docker images
+REPOSITORY                     TAG                 IMAGE ID            CREATED             SIZE
+test                           0.1                 eb34cf66ffd8        7 seconds ago       120MB
+```
+
+#### 2、基于本地模板导入
+
+用户也可以直接从一个操作系统模板文件导入一个镜像，主要使用`docker [container] import`命令。
+
+命令格式为`docker [image] import [OPTIONS] file|URL|-[REPOSITORY[:TAG]]`
+
+要直接导入一个镜像，可以使用`OpenVZ`提供的模板来创建， 或者用其他已导出的镜像模板来创建。OPENVZ模板下载地址为 `http://openvz.org/Download/templates/precreated`
+
+```
+sen@TR-PC MINGW64 /d/Program Files/Docker Toolbox
+$ cat ubuntu.tar | docker import - ubuntu:18.04
+sha256:5c7b00783d07192ea2af11f83b6847d2826cbdbc7eafd79c7e3693bef43b8858
+
+sen@TR-PC MINGW64 /d/Program Files/Docker Toolbox
+$ docker images
+REPOSITORY                     TAG                 IMAGE ID            CREATED             SIZE
+ubuntu                         18.04               5c7b00783d07        5 seconds ago       124MB
+ubuntu                         latest              5b1075c8fe30        38 seconds ago      124MB
+test                           0.1                 eb34cf66ffd8        37 minutes ago      120MB
+scrapinghub/splash             latest              3926e5aac017        11 months ago       1.22GB
+hub.c.163.com/library/ubuntu   latest              ccc7a11d65b1        17 months ago       120MB
+```
+
+#### *3、基于Dockerfile创建（后面会介绍）
+
+Dockerfile是一个文本文件，利用给定的指令描述基于某个父镜像创建新镜像的过程
+
+**实例**：
+
+​	基于debian:stretch-slim镜像安装python3环境，构成一个python3的镜像
+
+    FROM debian:stretch-slim
+    LABEL version="1.0" maintainer="docker user <docker_user@github>"
+    
+    RUN apt-get update && \
+    	apt-get install -y install python3 && \
+    	apt-get clean && \
+    	rm -rf /var/lib/apt/lists/*
+
+创建镜像的过程可以使用 `docker [image] build`命令，编译成功后本地将多出一个python：3的镜像
+
+```
+$ docker [image] bulid -t python:3
+...
+Successfully built 4b10f46eacc8
+Successfully tagged python:3
+$ docker images|grep python
+python 3 4b10f46eacc8 About a minute ago    95.01MB
+```
+
+## 六、存出和载入镜像
+
+`docker [image] save` 和 `docker [image] load`
+
+#### 1、存出镜像
+
+`docker [image] save` 支持`-o` ,  `-output string`参数，导出镜像到指定的文件中
+
+```
+$ docker save -o ubuntu.tar ubuntu
+```
+
+#### 2、载入镜像
+
+`docker [image] load` 将导出的tar文件再导入本地镜像库。 支持`-i` , `-input string`选项，从指定的文件中读入镜像内容 。
+
+```
+$ docker load -i ubuntu.tar
+The image ubuntu:latest already exists, renaming the old one with ID sha256:5b1075c8fe309f0318d81b3365050afe10773df73425f8c1a8ef965190d195b4 to empty string
+Loaded image: ubuntu:latest
+
+sen@TR-PC MINGW64 /d/Program Files/Docker Toolbox
+$ docker load < ubuntu.tar
+Loaded image: ubuntu:latest
+```
+
+## 七、上传镜像
+
+`docker [image] push`上传镜像到仓库， 默认上传到docker hub（需要登录），命令格式：`docker [image] push NAME[:TAG] | [REGISTRY_HOST[:REGISTRY_PORT]/]NAME[:TAG]`
+
+**例如**：
+
+​	用户user上传本地test: latest镜像，可以先添加新的标签 user/test:latest，然后用`docker [image] push`命令上传镜像：
+
+```
+$ docker tag ubuntu:latest user/test:latest
+
+sen@TR-PC MINGW64 /d/Program Files/Docker Toolbox
+$ docker push user/test:latest
+The push refers to repository [docker.io/user/test]
+```
+
