@@ -1,0 +1,28 @@
+{% extends 'useradmin/index.html' %}
+{% load useradmin_tags %}
+{% block right-content-container %}
+
+    <h3 class="page-header">{% get_model_name admin_class %}</h3>
+    <h4 class="page-header">注意：以下{% if obj %}与{{ obj }}{% endif %}相关的数据都将被删除</h4>
+    <div>
+    {% if objs %}
+        {% for obj in objs %}
+            {% display_all_related_objs obj as  all_related_obj_ele %}
+            {{ all_related_obj_ele |safe }}
+        {% endfor %}
+    {% else %}
+        {% display_all_related_objs obj as  all_related_obj_ele %}
+        {{ all_related_obj_ele |safe }}
+    {% endif %}
+        <form method="post">{% csrf_token %}
+            {% if querysets_ids %}
+                <input type="hidden" name="selected_ids" value="{{ querysets_ids }}">
+            {% endif %}
+
+            <input type="submit" class="btn btn-danger" value="确认删除">
+            <a class="btn btn-info" href="/useradmin/{{app_name}}/{{ model_name }}/{{ obj_id }}/change">返回</a>
+        </form>
+
+
+    </div>
+{% endblock right-content-container %}

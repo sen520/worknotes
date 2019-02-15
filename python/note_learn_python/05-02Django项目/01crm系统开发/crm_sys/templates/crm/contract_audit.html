@@ -1,0 +1,25 @@
+{% extends 'index.html' %}
+
+{% block right-content-containter %}
+    <h3>学员报名|审核</h3>
+    <h4>学员报名表</h4>
+    <form class="form-horizontal" method="post" onsubmit="BeforeFormSubmit(this)">{% csrf_token %}
+        {{ customer_form }}
+
+        <hr>
+        <h4>学员审核表</h4>
+        {{ enrollment_form }}
+
+
+        <input type="submit" class="btn btn-success pull-right" value="审核通过">
+
+
+    </form>
+    <script>
+        function BeforeFormSubmit(ele) {
+            $(":disabled").removeAttr('disabled');
+
+        }
+    </script>
+
+{% endblock right-content-containter %}

@@ -1,0 +1,30 @@
+{% extends 'index.html' %}
+{% load staticfiles %}
+{% block extra-css %}
+    <link href="{% static 'css/signin.css' %}" rel="stylesheet">
+
+{% endblock extra-css %}
+{% block body %}
+    <div class="container">
+
+        <form class="form-signin" method="post">
+            {% csrf_token %}
+            <h2 class="form-signin-heading">CRM</h2>
+            <label for="inputEmail" class="sr-only">Email address</label>
+            <input type="text" id="" name="username" class="form-control" placeholder="Username" required autofocus>
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password"
+                   required>
+            <div class="checkbox">
+                <span style="color: red">{{ error_message }}</span>
+                <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        </form>
+
+    </div> <!-- /container -->
+
+
+{% endblock body %}
