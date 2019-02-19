@@ -139,5 +139,5 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 ###### ③ 新建并启动容器
 
-
+`docker [container]  run`  等价于先执行docker [container] create  ， 再执行docker [container]  start
 
