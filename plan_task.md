@@ -46,6 +46,8 @@
 
 - 单元测试（mocha  https://github.com/JerryC8080/unittest-demo 、http://www.ruanyifeng.com/blog/2015/12/a-mocha-tutorial-of-examples.html 【windows 需要把mocha添加到windows环境变量中D:\test\node_modules\mocha\bin】）
 
+- electronjs
+
 #### 计划
 
 ###### 目前
