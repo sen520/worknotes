@@ -209,3 +209,145 @@ $ docker logs ......
 ```
 
 #### 2、停止容器
+
+###### ① 暂停容器
+
+`docker [container] pause CONTAINER [CONTAINER...]`
+
+处于paused状态的容器，可以使用docker [container] unpause CONTAINER [CONTAINER...] 命令来恢复到运行状态
+
+###### ② 终止容器
+
+- `docker [container] stop`来终止一个运行中的容器。
+
+格式为：`docker [container] stop [-t|--time[=10]] [CONTAINER...]`
+
+这个命令会首先向容器发送SIGTERM信号，等待一段超时时间后（默认为10秒），在发送SIGKILL信号来终止容器：
+
+```
+docker stop ce5
+```
+
+- `docker container prune` 会自动清除所有处于停止状态的容器
+- `docker [container] kill`直接发送SIGKILL信号来强行终止容器
+  - 当Docker容器中指定的应用终结时，容器也会自动终止。
+    - 当用户通过exit命令或Ctrl+d来退出终端时，所创建的容器立刻终止，处于stopped状态，可以通过`docker ps -qa`命令看到所有容器的ID。
+    - 处于终止状态的容器，可以通过`docker [container] start`命令来重新启动
+    - `docker [container] restart`命令 先让一个运行中的容器终止，然后再重新启动
+
+#### 3、进入容器
+
+在使用`-d`参数时，容器启动后会进入后台，用户无法查看容器内的信息，也无法操作。
+
+###### ① attach
+
+命令格式
+
+​	`docker [container] attach [--detach-keys[=[]]] [--no-stdin] [--sig-proxy[=true]] CONTAINER`
+
+这个命令支持三个主要选项：
+
+- `--detach-keys[=[]]`： 指定退出attach模式的快捷键序列，默认是`CTRL-p  CTRL-q`;
+- `--no-stdin=true|false`：是否关闭标准输入，默认是保持打开；
+- `--sig-proxy=true|false`：是否代理收到的系统信号给应用进程，默认为true。
+
+```
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker run -itd ubuntu
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+Digest: sha256:7a47ccc3bbe8a451b500d2b53104868b46d60ee8f5b35a24b41a86077c650210
+Status: Downloaded newer image for ubuntu:latest
+d6d505b79f88e5e1a2d8c4c5a926e0dfcac59aa992896d7cd9f0790fc2bd34a8
+
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+d6d505b79f88        ubuntu              "/bin/bash"         12 seconds ago      Up 13 seconds                           laughing_kare
+
+$ docker attach laughing_kare
+root@d6d505b79f88:/#
+```
+
+**当多个窗口同时attach到同一个容器的时候，所有的窗口都会同步显示；当某个窗口因命令阻塞时，其他窗口也无法执行操作了。**
+
+###### ② exec命令
+
+命令格式：`docker [container] exec [-d|--detach] [--detach-keys[=[]]] [-i|--interactive] [--privileged] [-t|--tty] [-u|--user[=USER]] CONTAINER COMMAND [ARG...]`
+
+比较重要的参数：
+
+- `-d`，`--detach`：在容器中后台执行命令；
+- `--detach-keys=""`：指定将容器切回后台的按键；
+- `-e`，`--env=[]`：指定环境变量列表；
+- `-i`，`--interactive=true|false`：打开标准输入接受用户输入命令，默认为false；
+- `--privileged=true|false`：是否给指定命令以最高权限，默认为false；
+- `-t`，`--tty=true|false`：分配伪终端，默认为false；
+- `-u`，`--user=""`：执行命令的用户名或ID。
+
+```
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker start 9545e561180d
+9545e561180d
+
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker exec -it 9545e561180d /bin/bash
+root@9545e561180d:/#
+```
+
+#### 4、删除容器
+
+`docker [container] rm`命令来删除处于终止或退出状态的容器。
+
+命令格式为`docker [container] rm [-f|--force] [-l|--link] [-v|--volumes] CONTAINER [CONTAINER...]`
+
+主要支持选项：
+
+-  `-f`，`--force=false`：是否强行终止并删除一个运行中的容器；
+- `-l`，`--link=false`：删除容器的连接，但保留容器；
+- `-v`，`--volumes=false`：删除容器挂载的数据卷。
+
+```
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+9545e561180d        ubuntu              "/bin/bash"         33 minutes ago      Exited (0) 22 minutes ago                       sad_mestorf
+
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker rm 9545e561180d
+9545e561180d
+
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+默认情况下，docker rm命令只能删除已经处于终止或退出状态的容器，并不能删除还处于运行状态的容器。
+
+如果想直接删除一个运行中的容器，可以添加`-f`参数，Docker会先发送SIGKILL信号给容器，终止其中的应用，之后强行删除。
+
+```
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker run -d ubuntu:18.04 /bin/sh -c "while true; do echo hello world;sleep 1; done"
+fe2d369c6ee1205afeb3ae270d39b2b79e89f66127c1db1f17eb96b3ff142cca
+
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker rm fe2d369c6ee1
+Error response from daemon: You cannot remove a running container fe2d369c6ee1205afeb3ae270d39b2b79e89f66127c1db1f17eb96b3ff142cca. Stop the container before attempting removal or force remove
+
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker rm -f fe2d369c6ee1
+fe2d369c6ee1
+
+Administrator@SC-201809020623 MINGW64 /c/Program Files/Docker Toolbox
+$ docker ps -qa
+
+```
+
+#### 5、导入和导出容器
+
+
+
+
+
+
+
