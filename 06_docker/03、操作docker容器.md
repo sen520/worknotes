@@ -345,9 +345,319 @@ $ docker ps -qa
 
 #### 5、导入和导出容器
 
+###### ① 导出容器
 
+`docker [container] export`
 
+命令格式：
 
+​	`docker [container] export [-o| --output[=""]] CONTAINER	`
 
+​	`-o` 用来指定导出的tar的文件名，也可以直接通过重定向来实现。
 
+```
+$ docker export -o test_for_run.tar ce5
+```
+
+###### ② 导入容器
+
+`docker [container] import`
+
+命令格式：
+
+​	`docker import [-c|--change[=[]]] [-m|--message[=MASSAGE]] file|URL|-[REPOSITORY[:TAG]]`
+
+​	可以通过 `  -c`，`--change=[]`	在导入的同时，执行对容器进项修改的Dockerfile指令
+
+```
+$ docker import test_for_run.tar -test/ubuntu:v1.0
+```
+
+docker load 载入镜像文件的区别在于容器快照文件将丢弃所有的历史记录和元数据信息（即仅保存容器当时的快照状态），而镜像存储文件将保存完整记录，体积更大。
+
+#### 6、查看容器
+
+###### ① 查看容器详情
+
+`docker containers inspect [OPTIONS] CONTAINER [CONTAINER...]`
+
+例如，查看某容器的具体信息，会以json格式返回包括容器ID、创建时间、路径、状态、镜像、配置等在内的信息；
+
+```
+$ docker container inspect 0435deadfa7a
+[
+    {
+        "Id": "0435deadfa7af4aa0c4aab2f20bba4e29a39526357db7a08b0cbf808f5879fc1",
+        "Created": "2019-03-03T13:34:43.584015659Z",
+        "Path": "/bin/bash",
+        "Args": [],
+        "State": {
+            "Status": "created",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "0001-01-01T00:00:00Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:ccc7a11d65b1b5874b65adb4b2387034582d08d65ac1817ebc5fb9be1baa5f88",
+        "ResolvConfPath": "",
+        "HostnamePath": "",
+        "HostsPath": "",
+        "LogPath": "",
+        "Name": "/compassionate_hertz",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "default",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "shareable",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DiskQuota": 0,
+            "KernelMemory": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": 0,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/mnt/sda1/var/lib/docker/overlay2/b1a8abb976adc0c1cf7b894fbb8f8e610800f665238ee296ce796cafb9fab932-init/diff:/mnt/sda1/var/lib/docker/overlay2/7c902ec8d2795509eccd361ce1a6741a7cf9412f2beabfb7ee98e4f25bb71db4/diff:/mnt/sda1/var/lib/docker/overlay2/87851652aebefd2a1c636d74f0c4fdaaf124b673188606e86e9afab827a6a4eb/diff:/mnt/sda1/var/lib/docker/overlay2/1eca5e2f4e468eb8ae1ce32645d7d29adfe25b4eec966b3fc9ad49b40e220704/diff:/mnt/sda1/var/lib/docker/overlay2/d7ce2d91893b082939bbd040a5e42adf2408e32a3467492361a6c18bc51b29f2/diff:/mnt/sda1/var/lib/docker/overlay2/0dba139a8774ffb1715bc6497a4acd97ae9ae14991f8f8d1f2aebb2c7354ec6e/diff",
+                "MergedDir": "/mnt/sda1/var/lib/docker/overlay2/b1a8abb976adc0c1cf7b894fbb8f8e610800f665238ee296ce796cafb9fab932/merged",
+                "UpperDir": "/mnt/sda1/var/lib/docker/overlay2/b1a8abb976adc0c1cf7b894fbb8f8e610800f665238ee296ce796cafb9fab932/diff",
+                "WorkDir": "/mnt/sda1/var/lib/docker/overlay2/b1a8abb976adc0c1cf7b894fbb8f8e610800f665238ee296ce796cafb9fab932/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "0435deadfa7a",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/bash"
+            ],
+            "ArgsEscaped": true,
+            "Image": "hub.c.163.com/library/ubuntu",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "",
+                    "EndpointID": "",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
+```
+
+###### ② 查看容器内的进程
+
+`docker [container] top [OPTIONS] [CONTAINER...]`
+
+###### ③ 查看统计信息
+
+`docker [container] stats [options] [CONTAINER...]`
+
+会显示CPU、内存、储存、网络等使用情况信息
+
+支持的选项：
+
+- `-a`，`-all`：输出所有容器统计信息，默认仅在运行中；
+- `-format string`：格式化输出信息；
+- `-no-stream`：不持续输出，默认会自动更新持续实时结果；
+- `-no-trunc`：不截断输出信息
+
+#### 7、其他容器命令
+
+###### ① 复制文件
+
+`container cp`
+
+命令格式：`docker [container] cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-`
+
+支持的选项：
+
+- `-a`，`-archive`：打包模式，复制文件会带有原始的uid/gid信息；
+- `-L`，`-follow-link`：跟随软连接。当原始路径为软连接时，默认只复制链接信息，使用该选项将会复制链接目标内容
+
+###### ② 查看变更
+
+`container diff` 查看容器内文件系统的变更。
+
+命令格式：`docker [container] diff CONTAINER`
+
+###### ③ 查看端口映射
+
+`container port` 
+
+命令格式：`docker container port CONTAINER [PRIVATE_PORT[/PROTO]]`
+
+```
+$ docker container port test
+9000/tcp -> 0.0.0.0:9000
+```
+
+###### ④ 更新配置
+
+`container update`
+
+命令格式：`docker [container] update [OPTIONS] CONTAINER [CONTAINER...]`
+
+支持的选项：
+
+- `-blkio-weigth uint16`：更新IO限制，10~1000，默认为0，代表无限制；
+- `-cpu-period int`：限制CPU调度器CFS（Completely Faire Scheduler）使用时间；
+- `-cpu-quota int`：限制CPU调度器CFS配额，单位微秒，最小1000；
+- `-cpu-rt-period int`：限制CPU调度器的实时周期，单位微秒；
+- `-cpu-rt-runtime int`：限制CPU调度器的实时运行时，单位微秒；
+- `-c`，`-cpu-shares int`：限制CPU使用份额；
+- `-cpus decimal`：限制CPU个数；
+- `-cpuset-cpus string`：允许使用的CPU核，如0-3，0，1；
+- `-cpuset-mems string`：允许使用的内存块，如0-3，0，1；
+- `-kernel-memory bytes`：限制使用的内核内存；
+- `-m`，`-memory bytes`：限制使用的内存；
+- `-memory-reservation bytes`：内存软限制；
+- `-memory-swap bytes`：内存加上缓存区的限制，-1表示对缓存区无限制；
+- `-restart string`：容器退出后的重启策略；
+
+例如，限制总配额为1秒，容器test所占用时间为10%，代码如下所示：
+
+```
+$ docker update --cpu-quota 1000000 test
+test
+$ docker update --cpu-period 100000 test
+test
+```
 
