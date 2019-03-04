@@ -50,11 +50,11 @@ mkdir /usr/local/python3
 
 ```
 tar -xvJf  Python-3.6.2.tar.xz
-cd Python-3.6.2
+tar -xvJf  Python-3.6.2.tar.xz
 ./configure --prefix=/usr/local/python3
 ```
 
-**安装python**
+**安装python**（最好使用 make && make altinstall）
 
 ```
 make && make install
@@ -72,8 +72,8 @@ make && make install
 ###### 5、创建软链接
 
 ```
-ln -s /usr/local/python3/bin/python3 /usr/bin/python3
-ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
+ln -s /usr/local/python3/bin/python3.6 /usr/bin/python3
+ln -s /usr/local/python3/bin/pip3.6 /usr/bin/pip3
 ```
 
 在命令行中输入python3测试

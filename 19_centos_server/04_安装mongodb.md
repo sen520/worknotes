@@ -8,13 +8,18 @@
 
  然后复制下面配置,保存退出
 
-`[mongodb-org-3.4]``name=MongoDB Repository``baseurl=https:``//repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/``gpgcheck=1``enabled=1``gpgkey=https:``//www.mongodb.org/static/pgp/server-3.4.asc`
+```
+[mongodb-org-3.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
+```
 
 ######  2、yum安装
 
-```
 `yum install -y mongodb-org`
-```
 
  没有权限就在前面加:   sudo
 
@@ -24,7 +29,7 @@
 vi /etc/mongod.conf
 ```
 
-修改配置文件的 `bind_ip,` 默认是 `127.0.0.1 只限于本机连接`。所以安装完成后必须把这个修改为 0.0.0.0 ,否则通过别的机器是没法连接的!
+修改配置文件的 `bind_ip,` 默认是 `127.0.0.1 只限于本机连接`。所以安装完成后必须把这个修改为 `0.0.0.0` ,否则通过别的机器是没法连接的!
 
 ###### 3、启动、停止、重启
 
