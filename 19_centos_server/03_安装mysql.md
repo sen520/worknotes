@@ -1,5 +1,17 @@
 可参考[菜鸟教程](http://www.runoob.com/mysql/mysql-install.html)
 
+#### 0、配置远程连接（任何用户）
+
+```
+mysql> use mysql
+mysql> select host, user,password from user;
+mysql> update user set host = '%' where user = 'root';
+ERROR 1062 (23000): Duplicate entry '%-root' for key 'PRIMARY'
+mysql> flush privileges;
+Query OK, 0 rows affected (0.02 sec)
+mysql> select host, user,password from user;
+```
+
 #### 1、安装环境
 
 - centos7
@@ -69,11 +81,6 @@ mysql-community-release-el7-5.noarch.rpm 将被安装
 mysql-connectors-community/x86_64        MySQL Connectors Community           1
 mysql-tools-community/x86_64             MySQL Tools Community                1
 mysql56-community/x86_64                 MySQL 5.6 Community Server          13
---------------------- 
-作者：whatlookingfor 
-来源：CSDN 
-原文：https://blog.csdn.net/whatlookingfor/article/details/52382472 
-版权声明：本文为博主原创文章，转载请附上博文链接！
 ```
 
 ###### ③ 选择要启用的mysql版本
@@ -130,6 +137,10 @@ mysql-connectors-community/x86_64        MySQL Connectors Community           14
 mysql-tools-community/x86_64             MySQL Tools Community                17
 mysql56-community/x86_64                 MySQL 5.6 Community Server          139
 ```
+
+###### ⑤ 配置用户名密码
+
+`mysqladmin -u root password "123456"`
 
 #### 5、通过Yum安装mysql
 
