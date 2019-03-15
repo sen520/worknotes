@@ -56,7 +56,7 @@
 - mysql
 - nodejs  express
 - python spider
-- nodejs spider
+- nodejs  spider
 
 ###### 1-2、n
 
@@ -65,14 +65,14 @@
 
 ###### 2-1、目前
 
-- 个人博客（在个人主机搭建，vue前端框架，django）
-- 个人博客（在个人主机搭建，vue前端框架，nodejs）
+- 个人博客
 - docker
 - sql深入和优化
 
 ###### 2-2、n
 
 - 机器学习
+- oracle
 
 
 
