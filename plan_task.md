@@ -50,17 +50,29 @@
 
 #### 计划
 
-###### 目前
+###### 1-1、技能
+
+- mongodb
+- mysql
+- nodejs  express
+- python spider
+- nodejs spider
+
+###### 1-2、n
+
+- mysql
+- flask
+
+###### 2-1、目前
 
 - 个人博客（在个人主机搭建，vue前端框架，django）
 - 个人博客（在个人主机搭建，vue前端框架，nodejs）
 - docker
 - sql深入和优化
 
-###### n
+###### 2-2、n
 
 - 机器学习
-- ps、ae、pr、会会
 
 
 
