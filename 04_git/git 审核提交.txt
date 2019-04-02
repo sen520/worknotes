@@ -1,0 +1,14 @@
+记得开启phpstudy
+
+git init 
+git checkout -b 分支名
+git add .
+  git config --global user.email "sen.zhang@buttoninvest.com"
+  git config --global user.name "Sen Zhang"
+git commit -m ""
+git checkout master
+git merge 分支名
+
+arc diff 填写信息
+arc list 查看提交信息
+arc land 提交
