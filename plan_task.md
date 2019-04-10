@@ -54,6 +54,8 @@
 
 - mongodb
 - mysql
+- redis
+- hive、hbase、hadoop生态
 - nodejs  express
 - python spider
 - nodejs  spider
