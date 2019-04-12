@@ -12,7 +12,9 @@
 
 `git branch -d test` 删除本地分支test
 
+`git push origin [branch]`创建远程分支
 
+`git push origin :[branch]`删除远程分支
 
 `arc diff`  提交审核
 
