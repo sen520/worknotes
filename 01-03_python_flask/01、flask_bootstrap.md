@@ -18,3 +18,13 @@ Flask-Bootstrap 的base.html 模板还定义了很多其他块，都可在衍生
 | navbar       | 用户定义的导航条          |
 | content      | 用户定义的页面内容        |
 | scripts      | 文档底部的JavaScript 声明 |
+
+其中很多块使`Flask-Bootstrap`自用的，如果直接自定义可能会导致一些问题，所以在引用的时候需要先继承一下
+
+```html
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="my-script.js"></script>
+{% endblock %}
+```
+
