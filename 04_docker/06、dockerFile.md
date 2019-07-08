@@ -1,6 +1,8 @@
 ## 1、基本结构
 
-​	Dockerfile主体内容分为四部分：`基础镜像信息`，`维护者信息`，`镜像操作指令`，`容器启动时执行指令`
+​       Dockerfile一般由一行行命令语句组成，并且支持以#开头的注释行	
+
+​       Dockerfile主体内容分为四部分：`基础镜像信息`，`维护者信息`，`镜像操作指令`，`容器启动时执行指令`
 
 ```
 # escape=\ (backslash)
@@ -163,4 +165,44 @@ CMD ["nginx","-g","daemon off;"]
 - HEALTHCHECK
 
 - SHELL
+
+[样例](https://git.mageia.cn/sen0117/server) 
+
+```dockerfile
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND noninteractive
+ 
+RUN apt-get update
+
+#创建脚本路径
+RUN mkdir /code
+WORKDIR /code
+
+#复制要运行的代码到镜像中，包括cron配置文件
+ADD . /code
+
+# 安装mongodb、cron
+RUN apt-get install mongodb -y
+RUN apt-get install cron
+RUN service cron start
+
+#设置cron脚本
+RUN crontab /code/crontabfile
+
+#安装rsyslog
+RUN apt-get -y install rsyslog
+
+#复制crontabfile到/etc/crontab
+RUN cp /code/crontabfile /etc/crontab
+RUN touch /var/log/cron.log
+
+#将run.sh设置为可执行
+RUN chmod +x /code/
+
+WORKDIR /code
+
+CMD ["bash","/code/run.sh"]
+
+```
 
