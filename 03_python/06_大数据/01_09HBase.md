@@ -91,8 +91,8 @@ ACID，指数据库事务正确执行的四个基本要素的缩写。
 2、Column Family 列族 & qualifier
 
 ​	HBase表中的每个列都归属于某个列族，列族必须作为表模式(schema)定义的一部分预先给出。如 create ‘test’, ‘course’；
-		列名以列族作为前缀，每个“列族”都可以有多个列成员(column)；如 course:math, course:english, 新的列可以随后按需、动态加入；权限控制、存储以及调优都是在列族层面进行的；
-		HBase把同一列族里面的数据存储在同一目录下，由几个文件保存。
+​		列名以列族作为前缀，每个“列族”都可以有多个列成员(column)；如 course:math, course:english, 新的列可以随后按需、动态加入；权限控制、存储以及调优都是在列族层面进行的；
+​		HBase把同一列族里面的数据存储在同一目录下，由几个文件保存。
 
 3、Cell 单元格
 		由行和列的坐标交叉决定； 单元格是有版本的；
@@ -126,37 +126,37 @@ Hlog在HRegion外面，HRegionServer里面
 2、Zookeeper
 
 ​	保证任何时候，集群中只有一个master；
-		存贮所有Region的寻址入口。
-		实时监控Region server的上线和下线信息。并实时通知Master
-		存储HBase的schema和table元数据
+​		存贮所有Region的寻址入口。
+​		实时监控Region server的上线和下线信息。并实时通知Master
+​		存储HBase的schema和table元数据
 
 3、Master
 
 ​	为Region server分配region；
-		负责Region server的负载均衡；
-		发现失效的Region server并重新分配其上的region；
-		管理用户对table的增删改操作
+​		负责Region server的负载均衡；
+​		发现失效的Region server并重新分配其上的region；
+​		管理用户对table的增删改操作
 
 4、RegionServer
 
 ​	Region server维护region，处理对这些region的IO请求
-		Region server负责切分在运行过程中变得过大的region
+​		Region server负责切分在运行过程中变得过大的region
 
 5、Region
 
 ​	– HBase自动把表水平划分成多个区域(region)，每个region会保存一个表里面某段连续的数据；每个表一开始只有一个region，随着数据不断插入表，region不断增大，当增大到一个阀值的时候，region就会等分会两个新的region（裂变）；
-		– 当table中的行不断增多，就会有越来越多的region。这样一张完整的表被保存在多个Regionserver 上
+​		– 当table中的行不断增多，就会有越来越多的region。这样一张完整的表被保存在多个Regionserver 上
 
 6、Memstore与storefile
 
 ​	一个region由多个store组成，一个store对应一个CF（列族）
-		store包括位于内存中的memstore和位于磁盘的storefile写操作先写入memstore，当memstore中的数据达到某个阈值，hregionserver会启动flashcache进程写入storefile，每次写入形成单独的一个storefile；当storefile文件的数量增长到一定阈值后，系统会进行合并（minor、majorcompaction），在合并过程中会进行版本合并和删除工作（majar），形成更大的storefile
-		– 当一个region所有storefile的大小和超过一定阈值后，会把当前的region分割为两个，并由hmaster分配到相应的regionserver服务器，实现负载均衡
+​		store包括位于内存中的memstore和位于磁盘的storefile写操作先写入memstore，当memstore中的数据达到某个阈值，hregionserver会启动flashcache进程写入storefile，每次写入形成单独的一个storefile；当storefile文件的数量增长到一定阈值后，系统会进行合并（minor、majorcompaction），在合并过程中会进行版本合并和删除工作（majar），形成更大的storefile
+​		– 当一个region所有storefile的大小和超过一定阈值后，会把当前的region分割为两个，并由hmaster分配到相应的regionserver服务器，实现负载均衡
 
 ​	– 客户端检索数据，先在memstore找，找不到再找storefile
-		– HRegion是HBase中分布式存储和负载均衡的最小单元。最小单元就表示不同的HRegion可以分布在不同的 HRegion server上。
-		– HRegion由一个或者多个Store组成，每个store保存一个columns family。
-		– 每个Strore又由一个memStore和0至多个StoreFile组成。如图：StoreFile以HFile格式保存在HDFS上
+​		– HRegion是HBase中分布式存储和负载均衡的最小单元。最小单元就表示不同的HRegion可以分布在不同的 HRegion server上。
+​		– HRegion由一个或者多个Store组成，每个store保存一个columns family。
+​		– 每个Strore又由一个memStore和0至多个StoreFile组成。如图：StoreFile以HFile格式保存在HDFS上
 
 ##### HBase读写操作
 
