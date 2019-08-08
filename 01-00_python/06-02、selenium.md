@@ -1,3 +1,5 @@
+## 1、selenium被识别
+
 相关网址：
 
 - https://stackoverflow.com/questions/33225947/can-a-website-detect-when-you-are-using-selenium-with-chromedriver
@@ -92,3 +94,78 @@ option.add_argument('-disable-infobars')
 　　--bookmark-menu 在工具 栏增加一个书签按钮
 　　--enable-sync 启用书签同步
 ```
+
+## 2、切换窗口
+
+```python
+from selenium import webdriver
+import time
+
+#   打开课工场网站主页【第一个窗口】
+driver = webdriver.Chrome()
+driver.get('http://www.kgc.cn/')
+time.sleep(2)
+#   点击全部课程，进入课程库【第二个窗口】
+driver.find_element_by_xpath('//a').click()
+time.sleep(3)
+
+# 切换窗口前内容
+from lxml import etree
+html = etree.HTML(driver.page_source)
+a = html.xpath('//span/text()')
+print(a)
+print('====================')
+
+#   使用第一种方法切换浏览器【切换到第二个窗口】
+windows = driver.window_handles
+driver.switch_to.window(windows[-1])
+time.sleep(3)
+
+# 切换窗口后内容
+html = etree.HTML(driver.page_source)
+a = html.xpath('//span/text()')
+print(a)
+#   点击课程库中的某个课程，进入课程详情界面【在第二个窗口页面进行元素点击操作，来判断窗口是否切换成功】
+# time.sleep(3)
+
+#   关闭浏览器
+driver.quit()
+print('测试通过')
+```
+
+## 3、指定下载位置
+
+```python
+option = webdriver.ChromeOptions()
+
+option.add_argument('-disable-infobars')
+
+prefs = {'profile.default_content_settings.popups': 0,         'download.default_directory': 'F:\\data\\check\\excel\\pdf'}
+
+option.add_experimental_option('prefs', prefs)
+
+driver = webdriver.Chrome(options=self.option)
+```
+
+## 4、设置页面加载超时时间，并终止加载
+
+在使用的时候发现有时候会有页面加载很慢的情况，因为selenium是在页面完全加载完毕才会停止，然而这个在很多时候是没有必要的，这个时候可以自己手动设置超时时间。方法如下：
+
+```python
+
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+
+driver = webdriver.Firefox()
+# 设定页面加载限制时间
+driver.set_page_load_timeout(5)
+driver.maximize_window()
+
+try:
+    driver.get('http://www.icourse163.org/')
+except TimeoutException:  
+    driver.execute_script('window.stop()') #当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+```
+
+
+
