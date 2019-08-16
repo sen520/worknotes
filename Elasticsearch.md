@@ -4,6 +4,8 @@
 
 使用`mongo-connector`进行连接
 
+[配置选项](https://github.com/yougov/mongo-connector/wiki/Configuration-Options)
+
 ```dockerfile
 FROM ubuntu:18.04
 LABEL maintainer dokcer_user<sen20181020@358974225@qq.com>
@@ -983,3 +985,8 @@ GET /my_index/address/_search
 }
 ```
 
+#### 四、遇到的坑
+
+- 严格的数据格式
+
+  
