@@ -14,3 +14,10 @@ mongo 127.0.0.1:27018'
 > rs.initiate(config)
 ```
 
+- 设置集群密码
+
+  创建用户后，生成密钥文件
+
+  `openssl rand -base64 1024 > mongodb.key`
+
+  重启集群，并加上`--keyFile "mongodb.key"`即可
