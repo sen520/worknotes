@@ -1,0 +1,1 @@
+{"mainAddress": "192.168.1.2:27018", "oplogFile": "/root/data/mongo-connector/oplog.timestamp","continueOnError": true,"fields": ["name", "abs", "intro"], "namespaces": {"data.entity":true},"docManagers": [{"docManager": "elastic2_doc_manager","targetURL": "192.168.1.44:9200","uniqueKey": "_id", "autoCommitInterval":0}]}

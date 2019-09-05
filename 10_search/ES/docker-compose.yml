@@ -1,0 +1,21 @@
+# elasticsearch will server as the index search db
+# kibana will server as the web ui of elasticsearch
+# the version of the elasticsearch and kibana should be equal
+
+elasticsearch:
+    image: elasticsearch:5.6
+    mem_limit: 4096m
+    environment:
+     - TZ=Asia/Shanghai
+    ports:
+     - "9200:9200"
+    expose:
+        - "9200"
+        - "9300"
+
+kibana:
+    image: kibana:5.6
+    ports:
+     - "5601:5601"
+    links:
+     - elasticsearch
