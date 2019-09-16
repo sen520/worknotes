@@ -33,8 +33,6 @@ EOF
 > sudo systemctl restart docker
 ```
 
-docker pull mongo:4.0
-
 #### 3、创建docker-compose.yml文件
 
 ```docker-compose
@@ -134,7 +132,7 @@ services:
   3. 集群管理角色：clusterAdmin、clusterManager、clusterMonitor、hostManager；
   4. 备份恢复角色：backup、restore；
   5. 所有数据库角色：readAnyDatabase、readWriteAnyDatabase、userAdminAnyDatabase、dbAdminAnyDatabase
-  6. 超级用户角色：root  
+  6. 超级用户角色：root
      // 这里还有几个角色间接或直接提供了系统超级用户的访问（dbOwner 、userAdmin、userAdminAnyDatabase）
   7. 内部角色：__system
 
@@ -309,9 +307,9 @@ docker-compose up
 
 这里使用的是mongo-connector
 
-有关oplog全量导入的[官方](https://github.com/yougov/mongo-connector/wiki/Oplog-Progress-File)解释，大概就是说，当oplog.timestamp文件不存在的时候，将会采用全量导入。当mongo的数据落后于oplog文件时，可以强制采用全量导入。
+有关oplog全量导入的[官方](https://github.com/yougov/mongo-connector/wiki/Oplog-Progress-File)解释，大概就是说，当oplog.timestamp文件不存在的时候，将会采用全量导入。
 
-这里有一个注意点，mongo-connector 是通过oplog的方式进行数据同步，所以，所要链接的数据库必须是集群。
+这里有一个注意点，mongo-connector是通过oplog的方式进行数据同步，所以，所要链接的数据库必须是集群。
 
 - dockerfile
 
@@ -373,7 +371,7 @@ CMD mongo-connector -c /root/data/config
   - fields 同步的字段
   - namespaces 同步的数据库和表
   - logging 以mongo-connector 的操作日志
-  - docManagers 数据插入的格式，包括唯一键的设置，数据同步的时间，默认是只同步一次，0为实时同步（实时指的是mongo-connector检测到所连接的数据库oplog有变化，由于连接的是数据库的副本集，所以这里的变化指的是副本集的oplog的变化）
+  - docManagers 数据插入的格式，包括唯一键的设置，数据同步的时间（单位是s），默认是只同步一次，0为实时同步（实时指的是mongo-connector检测到所连接的数据库oplog有变化，由于连接的是数据库的副本集，所以这里的变化指的是副本集的oplog的变化）
 
   [配置信息](https://github.com/yougov/mongo-connector/wiki/Configuration-Options)
 
@@ -381,7 +379,7 @@ CMD mongo-connector -c /root/data/config
 
 - 运行容器
 
-  `docker run -d -v /workspace/ES:/root/data mongo-connector:latest`
+  `docker run  --restart=always -d -v /workspace/ES:/root/data mongo-connector:latest`
 
 ### 3、 ES 相关信息
 
@@ -460,7 +458,7 @@ tips:
 
 可以直接发送搜索请求，不附加任何条件，默认会返回10条数据，数据内容会在响应体的hits中![es01](C:\Users\Administrator\Desktop\es01.png)
 
-##### 1、返回字段解释
+返回字段解释：
 
 1、`took` Elasticsearch执行搜索的时间（以毫秒为单位）
 
@@ -477,6 +475,89 @@ tips:
 7、`hits.sort` 排序的key（如果按分值排序的话则不显示）
 
 8、每个节点都有一个`_score`字段，是文档的相关性得分，衡量了文档与查询的匹配程度。返回结果默认按照`_score`降序排列，`max_score`指的是所有文档匹配查询中`_score`的最大值
+
+##### 0、普通简单查询
+
+###### 字符串查询
+
+这种查询，我们只需要像一般传递URL参数的方法去传递查询语句
+
+`/data/entity/_search?q=name:张三`
+
+如果没有指定字段，查询字符串搜索使用的`_all`字段
+
+![es02-复杂的语句查询](C:\Users\Administrator\Desktop\es02-复杂的语句查询.png)
+
+###### 短语搜索
+
+搜索名字带有李四的数据
+
+```
+{
+    "query" : {
+        "match_phrase" : {
+            "name" : "李四"
+        }
+    }
+}
+```
+
+###### 高亮显示
+
+```
+{
+    "query" : {
+        "match_phrase" : {
+            "name" : "李四"
+        }
+    },
+    "highlight": {
+    	"fields": {
+    		"name":{}
+    	}
+    }
+}
+```
+
+result
+
+```json
+{
+    "took": 19,
+    "timed_out": false,
+    "_shards": {
+        "total": 5,
+        "successful": 5,
+        "skipped": 0,
+        "failed": 0
+    },
+    "hits": {
+        "total": 1,
+        "max_score": 29.54232,
+        "hits": [
+            {
+                "_index": "data",
+                "_type": "entity",
+                "_id": "5c7397d2ac623e001071c7b3",
+                "_score": 29.54232,
+                "_source": {
+                    "name": "李四",
+                    "nick": "李四",
+                    "abs": "",
+                    "type": 1.0,
+                    "intro": "",
+                    "_deleted": false
+                },
+                "highlight": {
+                    "name": [
+                        "<em>李</em><em>四</em>"
+                    ]
+                }
+            }
+        ]
+    }
+}
+```
 
 ##### 2、多索引查询
 
@@ -638,7 +719,7 @@ type:
 
   主要字段会含有单词的词干部分，同义词和消除了变音符号的单词。它用来尽可能多地匹配文档。
 
-  相同的文本可以被索引到其它的字段中来提供更加精确的匹配。一个字段或许会包含未被提取成词干的单词，另一个字段是包含了变音符号的单词，第三个字段则使用shingle来提供关于[单词邻近度(Word Proximity)](http://blog.csdn.net/dm_vincent/article/details/41800351)的信息。
+  相同的文本可以被索引到其它的字段中来提供更加精确的匹配。一个字段或许会包含未被提取成词干的单词，另一个字段是包含了变音符号的单词，第三个字段则使用shingle来提供关于单词邻近度(Word Proximity)(match_phrase)的信息。
 
   以上这些额外的字段扮演者signal的角色，用来增加每个匹配的文档的相关度分值。越多的字段被匹配则意味着文档的相关度越高。
 
@@ -672,7 +753,6 @@ type:
 				"name",
 				"abs"
 			],
-			"tie_breaker": 0.3,  //最佳匹配的调优
 			"minimum_should_match": "30%"
 		}
 	}
@@ -793,7 +873,7 @@ minimum_should_match指定必须存在的最小数量或百分比
 }
 ```
 
-8、提交权重
+###### 8、提交权重
 
 `boost`
 
@@ -821,9 +901,147 @@ minimum_should_match指定必须存在的最小数量或百分比
 }
 ```
 
+###### 9、[dis_max查询](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-dis-max-query.html)
 
+不使用 `bool` 查询，可以使用 `dis_max` 即分离最大化查询(Disjuction Max Query)。Disjuction的意思"OR"(而Conjunction的意思是"AND")，因此Disjuction Max Query的意思就是返回匹配了任何查询的文档，并且分值是产生了最佳匹配的查询所对应的分值：
 
+```
+{
+    "query": {
+        "dis_max": {
+            "queries": [
+                { "match": { "title": "Brown fox" }},
+                { "match": { "body":  "Brown fox" }}
+            ]
+        }
+    }
+}
+```
 
+它会产生我们期望的结果：
+
+```
+{
+  "hits": [
+     {
+        "_id":      "2",
+        "_score":   0.21509302,
+        "_source": {
+           "title": "Keeping pets healthy",
+           "body":  "My quick brown fox eats rabbits on a regular basis."
+        }
+     },
+     {
+        "_id":      "1",
+        "_score":   0.12713557,
+        "_source": {
+           "title": "Quick brown rabbits",
+           "body":  "Brown rabbits are commonly seen."
+        }
+     }
+  ]
+}
+```
+
+###### 最佳字段查询的调优
+
+如果用户搜索的是"quick pets"，那么会发生什么呢？两份文档都包含了单词`quick`，但是只有文档2包含了单词`pets`。两份文档都没能在一个字段中同时包含搜索的两个单词。
+
+一个像下面那样的简单`dis_max`查询会选择出拥有最佳匹配字段的查询子句，而忽略其他的查询子句：
+
+```
+{
+    "query": {
+        "dis_max": {
+            "queries": [
+                { "match": { "title": "Quick pets" }},
+                { "match": { "body":  "Quick pets" }}
+            ]
+        }
+    }
+}
+{
+  "hits": [
+     {
+        "_id": "1",
+        "_score": 0.12713557, 
+        "_source": {
+           "title": "Quick brown rabbits",
+           "body": "Brown rabbits are commonly seen."
+        }
+     },
+     {
+        "_id": "2",
+        "_score": 0.12713557, 
+        "_source": {
+           "title": "Keeping pets healthy",
+           "body": "My quick brown fox eats rabbits on a regular basis."
+        }
+     }
+   ]
+}
+```
+
+可以发现，两份文档的分值是一模一样的。
+
+我们期望的是同时匹配了`title`字段和`body`字段的文档能够拥有更高的排名，但是结果并非如此。需要记住：`dis_max`查询只是简单的使用最佳匹配查询子句得到的`_score`。
+
+**tie_breaker**
+
+但是，将其它匹配的查询子句考虑进来也是可能的。通过指定`tie_breaker`参数：
+
+```
+{
+    "query": {
+        "dis_max": {
+            "queries": [
+                { "match": { "title": "Quick pets" }},
+                { "match": { "body":  "Quick pets" }}
+            ],
+            "tie_breaker": 0.3
+        }
+    }
+}
+```
+
+它会返回以下结果：
+
+```
+{
+  "hits": [
+     {
+        "_id": "2",
+        "_score": 0.14757764, 
+        "_source": {
+           "title": "Keeping pets healthy",
+           "body": "My quick brown fox eats rabbits on a regular basis."
+        }
+     },
+     {
+        "_id": "1",
+        "_score": 0.124275915, 
+        "_source": {
+           "title": "Quick brown rabbits",
+           "body": "Brown rabbits are commonly seen."
+        }
+     }
+   ]
+}
+```
+
+现在文档2的分值比文档1稍高一些。
+
+`tie_breaker`参数会让`dis_max`查询的行为更像是`dis_max`和`bool`的一种折中。它会通过下面的方式改变分值计算过程：
+
+1. 取得最佳匹配查询子句的`_score`。
+2. 将其它每个匹配的子句的分值乘以`tie_breaker`。
+3. 将以上得到的分值进行累加并规范化。
+
+通过`tie_breaker`参数，所有匹配的子句都会起作用，只不过最佳匹配子句的作用更大。
+
+> NOTE
+>
+> `tie_breaker`的取值范围是`0`到`1`之间的浮点数，取`0`时即为仅使用最佳匹配子句(译注：和不使用`tie_breaker`参数的`dis_max`查询效果相同)，取`1`则会将所有匹配的子句一视同仁。它的确切值需要根据你的数据和查询进行调整，但是一个合理的值会靠近`0`，(比如，`0.1` -`0.4`)，来确保不会压倒`dis_max`查询具有的最佳匹配性质。
 
 ###### tips
 
@@ -1038,7 +1256,7 @@ _score 和 max_score 字段都为 null。计算 _score 是比较消耗性能的,
 
 `lte`: 小于等于
 
-###### 4、`exists` 过滤
+###### 4、exists过滤
 
 `exists` 过滤可以用于查找文档中是否包含指定字段或没有某个字段，类似于SQL语句中的`IS_NULL`条件
 
@@ -1064,7 +1282,7 @@ _score 和 max_score 字段都为 null。计算 _score 是比较消耗性能的,
 
 这两个过滤只是针对已经查出一批数据来，但是想区分出某个字段是否存在的时候使用。
 
-###### 5、`bool` 过滤
+###### 5、bool过滤
 
 `bool` 过滤可以用来合并多个过滤条件查询结果的布尔逻辑，它包含一下操作符：
 
@@ -1176,106 +1394,7 @@ GET /my_index/my_type/_search
 }
 ```
 
-
-
-##### 字符串查询
-
-这种查询，我们只需要像一般传递URL参数的方法去传递查询语句
-
-`/data/entity/_search?q=name:张三`
-
-如果没有指定字段，查询字符串搜索使用的`_all`字段
-
-![es02-复杂的语句查询](C:\Users\Administrator\Desktop\es02-复杂的语句查询.png)
-
-
-
-##### 全文搜索
-
-搜索abs中含有test的数据
-
-```
-{
-    "query" : {
-        "match" : {
-            "abs" : "test"
-        }
-    }
-}
-```
-
-##### 短语搜索
-
-搜索名字带有李四的数据
-
-```
-{
-    "query" : {
-        "match_phrase" : {
-            "name" : "李四"
-        }
-    }
-}
-```
-
-###### 高亮显示
-
-```
-{
-    "query" : {
-        "match_phrase" : {
-            "name" : "李四"
-        }
-    },
-    "highlight": {
-    	"fields": {
-    		"name":{}
-    	}
-    }
-}
-```
-
-result
-
-```json
-{
-    "took": 19,
-    "timed_out": false,
-    "_shards": {
-        "total": 5,
-        "successful": 5,
-        "skipped": 0,
-        "failed": 0
-    },
-    "hits": {
-        "total": 1,
-        "max_score": 29.54232,
-        "hits": [
-            {
-                "_index": "data",
-                "_type": "entity",
-                "_id": "5c7397d2ac623e001071c7b3",
-                "_score": 29.54232,
-                "_source": {
-                    "name": "李四",
-                    "nick": "李四",
-                    "abs": "",
-                    "type": 1.0,
-                    "intro": "",
-                    "_deleted": false
-                },
-                "highlight": {
-                    "name": [
-                        "<em>李</em><em>四</em>"
-                    ]
-                }
-            }
-        ]
-    }
-}
-```
-
-##### aggtegations（聚合分析）
+##### 8、aggtegations（聚合分析）
 
 聚合分析是数据库中重要的功能特性，完成对一个查询的数据集中数据的聚合计算，如：找出某字段（或计算表达式的结果）的最大值、最小值，计算和、平均值等。ES作为搜索引擎兼数据库，同样提供了强大的聚合分析能力。
 
@@ -1285,7 +1404,22 @@ result
 
 ES中还提供了矩阵聚合（matrix）、管道聚合（pipleline），但还在完善中。 
 
-######1、max、min、sum、avg
+```js
+"aggregations" : {
+    "<aggregation_name>" : {
+        "<aggregation_type>" : {
+            <aggregation_body>
+        }
+        [,"meta" : {  [<meta_data_body>] } ]?
+        [,"aggregations" : { [<sub_aggregation>]+ } ]?
+    }
+    [,"<aggregation_name_2>" : { ... } ]*
+}
+```
+
+**aggregations 也可简写为 aggs**
+
+###### 1、max、min、sum、avg
 
 - 查询type的最大值
 
@@ -1343,7 +1477,18 @@ terms根据字段值项分组聚合.field按什么字段分组,size指定返回�
 
 ###### 3、去重cardinality
 
-
+```
+{
+    "size": 0, 
+    "aggs": {
+      "count_type": {
+        "cardinality": {
+          "field": "type"
+        }
+      }
+    }
+}
+```
 
 ###### 4、percentiles百分比
 
@@ -1450,16 +1595,20 @@ filter对满足过滤查询的文档进行聚合计算,在查询命中的文档�
     "aggs": {
       "message": {
         "filters": {
-          
           "filters": {
-            "errors": {
+            "asset": {
               "exists": {
-                "field": "__type"
+                "field": "asset.type"
               }
             },
-            "warring":{
+            "Patent":{
               "term": {
-                "__type": "info"
+                "asset.type": 1
+              }
+            },
+            "product":{
+              "term": {
+                "asset.type": 0
               }
             }
           }
@@ -1467,7 +1616,33 @@ filter对满足过滤查询的文档进行聚合计算,在查询命中的文档�
       }
     }
 }
-
+// =================================
+{
+    "size": 0, 
+    "aggs": {
+      "message": {
+        "filters": {
+          "filters": {
+            "asset": {
+              "exists": {
+                "field": "asset.type"
+              }
+            },
+            "Patent":{
+              "term": {
+                "asset.type": 1
+              }
+            },
+            "product":{
+              "term": {
+                "asset.type": 0
+              }
+            }
+          }
+        }
+      }
+    }
+}
 ```
 
 ###### 8、range聚合
@@ -1523,7 +1698,8 @@ filter对满足过滤查询的文档进行聚合计算,在查询命中的文档�
 }
 ```
 
-10、date_histogram
+###### 10、date_histogram
+
 时间直方图聚合,就是按天、月、年等进行聚合统计。可按 year (1y), quarter (1q), month (1M), week (1w), day (1d), hour (1h), minute (1m), second (1s) 间隔聚合或指定的时间间隔聚合
 
 ```javascript
@@ -1544,11 +1720,10 @@ filter对满足过滤查询的文档进行聚合计算,在查询命中的文档�
 }
 ```
 
-##### 10、missing聚合
+###### 11、missing聚合
 
 ```javascript
 { 
-  
   "aggs": {
     "account_missing": {
       "missing": {
@@ -1561,7 +1736,7 @@ filter对满足过滤查询的文档进行聚合计算,在查询命中的文档�
 
 
 
-#####映射与分析
+####3、映射与分析
 
 **映射(mapping)**机制用于进行字段类型确认，将每个字段匹配为一种确定的数据类型(`string`, `number`, `booleans`, `date`等)。
 
@@ -1578,31 +1753,74 @@ GET /_search?q=date:2014-09-15   # 1  一个结果
 GET /_search?q=date:2014         # 0  个结果 !
 ```
 
-可以通过`GET /gb/_mapping/tweet`查看es是如何解读文档
+可以通过`GET /data/_mapping/entity`查看es是如何解读文档
 
 ```json
 {
-   "gb": {
-      "mappings": {
-         "tweet": {
-            "properties": {
-               "date": {
-                  "type": "date",
-                  "format": "dateOptionalTime"
-               },
-               "name": {
-                  "type": "string"
-               },
-               "tweet": {
-                  "type": "string"
-               },
-               "user_id": {
-                  "type": "long"
-               }
+    "data": {
+        "mappings": {
+            "entity": {
+                "properties": {
+                    "_deleted": {
+                        "type": "boolean"
+                    },
+                    "abs": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "asset": {
+                        "properties": {
+                            "type": {
+                                "type": "long"
+                            }
+                        }
+                    },
+                    "intro": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "name": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "nick": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "portfolio": {
+                        "properties": {
+                            "type": {
+                                "type": "long"
+                            }
+                        }
+                    },
+                    "type": {
+                        "type": "float"
+                    }
+                }
             }
-         }
-      }
-   }
+        }
+    }
 }
 ```
 
@@ -1637,7 +1855,7 @@ GET /_search?q=date:2014         # 0  个结果 !
 | Boolean        | `boolean`                          |
 | Date           | date                               |
 
-#### 3、相关度
+#### 4、相关度
 
 查询中，可以在query外加上 `"min_score" : -1` 来控制返回的最小score
 
@@ -1797,5 +2015,407 @@ GET /us/tweet/12/_explain
 
 也就是说我们的 `user_id` 过滤子句使该文档不能匹配到。
 
+匹配到：
 
+```
+{
+    "_index": "data",
+    "_type": "entity",
+    "_id": "5cb42caa55c146000d2c8350",
+    "matched": true,
+    "explanation": {
+        "value": 30.204586,
+        "description": "sum of:",
+        "details": [
+            {
+                "value": 30.204586,
+                "description": "sum of:",
+                "details": [
+                    {
+                        "value": 14.401272,
+                        "description": "weight(name:hidefumi in 87159) [PerFieldSimilarity], result of:",
+                        "details": [
+                            {
+                                "value": 14.401272,
+                                "description": "score(doc=87159,freq=1.0 = termFreq=1.0\n), product of:",
+                                "details": [
+                                    {
+                                        "value": 11.284546,
+                                        "description": "idf, computed as log(1 + (docCount - docFreq + 0.5) / (docFreq + 0.5)) from:",
+                                        "details": [
+                                            {
+                                                "value": 4.0,
+                                                "description": "docFreq",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 358119.0,
+                                                "description": "docCount",
+                                                "details": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "value": 1.2761942,
+                                        "description": "tfNorm, computed as (freq * (k1 + 1)) / (freq + k1 * (1 - b + b * fieldLength / avgFieldLength)) from:",
+                                        "details": [
+                                            {
+                                                "value": 1.0,
+                                                "description": "termFreq=1.0",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 1.2,
+                                                "description": "parameter k1",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 0.75,
+                                                "description": "parameter b",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 5.4355564,
+                                                "description": "avgFieldLength",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 2.56,
+                                                "description": "fieldLength",
+                                                "details": []
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "value": 15.803315,
+                        "description": "weight(name:yasuhara in 87159) [PerFieldSimilarity], result of:",
+                        "details": [
+                            {
+                                "value": 15.803315,
+                                "description": "score(doc=87159,freq=1.0 = termFreq=1.0\n), product of:",
+                                "details": [
+                                    {
+                                        "value": 12.383159,
+                                        "description": "idf, computed as log(1 + (docCount - docFreq + 0.5) / (docFreq + 0.5)) from:",
+                                        "details": [
+                                            {
+                                                "value": 1.0,
+                                                "description": "docFreq",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 358119.0,
+                                                "description": "docCount",
+                                                "details": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "value": 1.2761942,
+                                        "description": "tfNorm, computed as (freq * (k1 + 1)) / (freq + k1 * (1 - b + b * fieldLength / avgFieldLength)) from:",
+                                        "details": [
+                                            {
+                                                "value": 1.0,
+                                                "description": "termFreq=1.0",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 1.2,
+                                                "description": "parameter k1",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 0.75,
+                                                "description": "parameter b",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 5.4355564,
+                                                "description": "avgFieldLength",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 2.56,
+                                                "description": "fieldLength",
+                                                "details": []
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "value": 0.0,
+                "description": "match on required clause, product of:",
+                "details": [
+                    {
+                        "value": 0.0,
+                        "description": "# clause",
+                        "details": []
+                    },
+                    {
+                        "value": 1.0,
+                        "description": "type:[4.0 TO 4.0], product of:",
+                        "details": [
+                            {
+                                "value": 1.0,
+                                "description": "boost",
+                                "details": []
+                            },
+                            {
+                                "value": 1.0,
+                                "description": "queryNorm",
+                                "details": []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
+未匹配到：
+
+```
+{
+    "_index": "data",
+    "_type": "entity",
+    "_id": "5cb42caa55c146000d2c8350",
+    "matched": false,
+    "explanation": {
+        "value": 0.0,
+        "description": "Failure to meet condition(s) of required/prohibited clause(s)",
+        "details": [
+            {
+                "value": 30.204586,
+                "description": "sum of:",
+                "details": [
+                    {
+                        "value": 14.401272,
+                        "description": "weight(name:hidefumi in 87159) [PerFieldSimilarity], result of:",
+                        "details": [
+                            {
+                                "value": 14.401272,
+                                "description": "score(doc=87159,freq=1.0 = termFreq=1.0\n), product of:",
+                                "details": [
+                                    {
+                                        "value": 11.284546,
+                                        "description": "idf, computed as log(1 + (docCount - docFreq + 0.5) / (docFreq + 0.5)) from:",
+                                        "details": [
+                                            {
+                                                "value": 4.0,
+                                                "description": "docFreq",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 358119.0,
+                                                "description": "docCount",
+                                                "details": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "value": 1.2761942,
+                                        "description": "tfNorm, computed as (freq * (k1 + 1)) / (freq + k1 * (1 - b + b * fieldLength / avgFieldLength)) from:",
+                                        "details": [
+                                            {
+                                                "value": 1.0,
+                                                "description": "termFreq=1.0",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 1.2,
+                                                "description": "parameter k1",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 0.75,
+                                                "description": "parameter b",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 5.4355564,
+                                                "description": "avgFieldLength",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 2.56,
+                                                "description": "fieldLength",
+                                                "details": []
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "value": 15.803315,
+                        "description": "weight(name:yasuhara in 87159) [PerFieldSimilarity], result of:",
+                        "details": [
+                            {
+                                "value": 15.803315,
+                                "description": "score(doc=87159,freq=1.0 = termFreq=1.0\n), product of:",
+                                "details": [
+                                    {
+                                        "value": 12.383159,
+                                        "description": "idf, computed as log(1 + (docCount - docFreq + 0.5) / (docFreq + 0.5)) from:",
+                                        "details": [
+                                            {
+                                                "value": 1.0,
+                                                "description": "docFreq",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 358119.0,
+                                                "description": "docCount",
+                                                "details": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "value": 1.2761942,
+                                        "description": "tfNorm, computed as (freq * (k1 + 1)) / (freq + k1 * (1 - b + b * fieldLength / avgFieldLength)) from:",
+                                        "details": [
+                                            {
+                                                "value": 1.0,
+                                                "description": "termFreq=1.0",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 1.2,
+                                                "description": "parameter k1",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 0.75,
+                                                "description": "parameter b",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 5.4355564,
+                                                "description": "avgFieldLength",
+                                                "details": []
+                                            },
+                                            {
+                                                "value": 2.56,
+                                                "description": "fieldLength",
+                                                "details": []
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "value": 0.0,
+                "description": "no match on required clause (type:[0.0 TO 0.0])",
+                "details": [
+                    {
+                        "value": 0.0,
+                        "description": "type:[0.0 TO 0.0] doesn't match id 87159",
+                        "details": []
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
+#### 附：
+
+1、关键词
+
+- query
+
+```
+	match
+	match_all
+	multi_match
+	match_phrase
+		[field]
+```
+- bool
+
+```
+
+	must
+		match
+	must_not
+	should
+		match
+		bool
+		term
+			...
+	filter
+	 	term
+```
+- [field]相关文档详情见官方文档
+
+```
+
+	query -- value   支持正则
+	type 类型
+	fields 字段
+	tie_breaker 最佳匹配的调优
+	minimum_should_match 最小匹配度
+	boost 权重
+	operator or 或者 and 默认为or
+```
+
+- aggregate(agg)
+
+```
+
+    "aggregations" : {
+        "<aggregation_name>" : {
+            "<aggregation_type>" : {
+                <aggregation_body>
+            }
+            [,"meta" : {  [<meta_data_body>] } ]?
+            [,"aggregations" : { [<sub_aggregation>]+ } ]?
+        }
+        [,"<aggregation_name_2>" : { ... } ]*
+    }
+
+
+```
+
+- size
+- from
+- _source
+
+2、目前后端采用的方式
+
+```json
+{
+	"query": {
+        "bool": {
+            "should": [
+                { "match": { "name": "", "boost": 2 } },
+                { "match": { "tag": "", "boost": 1.5 } },
+                { "match": { "nick": "", "boost": 1.5 } },
+                { "match": { "abs": "", "boost": 1 } },
+            ],
+            "filter":[{"term": {}}]
+        }
+    },
+   	"_source": ["name"],
+    "from": 0,
+   	"size": 24,
+}
+```
 
