@@ -73,7 +73,7 @@ tips:
 
 - python flask中提供了request方法，可以使用`request.data`获取get请求的body
 
-可以直接发送搜索请求，不附加任何条件，默认会返回10条数据，数据内容会在响应体的hits中![es01](C:\Users\Administrator\Desktop\es01.png)
+可以直接发送搜索请求，不附加任何条件，默认会返回10条数据，数据内容会在响应体的hits中![es01](.\es01.png)
 
 返回字段解释：
 
@@ -103,7 +103,7 @@ tips:
 
 如果没有指定字段，查询字符串搜索使用的`_all`字段
 
-![es02-复杂的语句查询](C:\Users\Administrator\Desktop\es02-复杂的语句查询.png)
+![es02-复杂的语句查询](.\es02-复杂的语句查询.png)
 
 ###### 短语搜索
 
@@ -419,6 +419,10 @@ Avoid using the term query for text fields.
 By default, Elasticsearch changes the values of text fields as part of analysis. This can make finding exact matches for text field values difficult.
 
 To search text field values, use the match query instead.
+
+![TIM截图20190917095843](./TIM截图20190917095843.png)
+
+
 
 ```
 {
