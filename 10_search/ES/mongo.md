@@ -247,7 +247,7 @@ mongodb://用户名:密码@集群1，集群2，集群3/要操作的数据库?aut
 
 - 还原
 
-  `mongorestore -u admin -p Button.2019 --authenticationDatabase admin -d data .`
+  `mongorestore -u xx-p xx --authenticationDatabase admin -d data .`
 
   mongorestore 默认是追加， 可以加--drop清空后恢复
 
@@ -331,7 +331,7 @@ CMD mongo-connector -c /root/data/config
 
   ```json
   {
-      "mainAddress": "mongodb://admin:Button.2019@office.button.tech:27018,office.button.tech:27019,office.button.tech:27020/data?authSource=admin&replicaSet=rs0",
+      "mainAddress": "",
       "oplogFile": "/root/data/log/oplog.timestamp",
       "continueOnError": true,
       "fields": [
