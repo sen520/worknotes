@@ -354,7 +354,7 @@ CMD mongo-connector -c /root/data/config
       "docManagers": [
           {
               "docManager": "elastic2_doc_manager",
-              "targetURL": "office.button.tech",
+              "targetURL": "",
               "uniqueKey": "_id",
               "autoCommitInterval": 0
           }
