@@ -4,7 +4,7 @@
 
 A星寻路算法，A*search algorithm，是一种用于寻找有效路径的算法
 
-<img src="http://silencew.cn/uploads/1574841098428.png" style="zoom:80%;" />
+![](../img/1574841098428.png)
 
 迷宫的场景通常是由小方格组成的，假设我们有一个7×5大小的迷宫，上图中绿色的格子是起点，红色的格子是终点，中间的3个蓝色格子是一堵墙。
 
@@ -25,7 +25,7 @@ AI角色从起点开始，每一步只能向上下/左右移动1格，且不能�
 
 每一个格子都具有F、G、H这三个属性
 
-<img src="http://silencew.cn/uploads/1574841484888.png" style="zoom:80%;" />
+![](../img/1574841484888.png)
 
 G：从起点走到当前格子的成本，也就是已经花费了多少步
 
@@ -41,7 +41,7 @@ F：G和H的综合评估，也就是从起点到达当前格子，在从当前�
 
    CloseList: 
 
-   <img src="http://silencew.cn/uploads/1574841098428.png" style="zoom:80%;" />
+![](../img/1574841098428.png)
 
 2. 找出OpenList中F值最小的方格作为当前方格。虽然我们没有直接计算起点方格的F值，但此时OpenList中只有唯一的方格Grid(1, 2)，把当前格子移出OpenList，放入CloseList。代表这个格子已到达并检查过了。
 
@@ -51,7 +51,7 @@ F：G和H的综合评估，也就是从起点到达当前格子，在从当前�
 
 3. 找出当前方格（刚刚检查过的格子）上、下、左、右所有可到达的格子，看它们是否在OpenList或CloseList当中。如果不在，则将它们加入OpenList，计算出相应的G、H、F值，并把当前格子作为它们的“父节点”
 
-   <img src="http://silencew.cn/uploads/1574842214598.png" style="zoom:80%;" />
+![](../img/1574842214598.png)
 
    在上图中，每个格子的左下方数字是G，右下方是H，左上方是F
 
@@ -59,11 +59,11 @@ F：G和H的综合评估，也就是从起点到达当前格子，在从当前�
 
 1. 找出OpenList中F值的最小方格，即方格Grid(2, 2)，将它作为当前方格，并把当前方格移出OpenList，放入CloseList，代表这个格子已经到达并检查过了
 
-   <img src="http://silencew.cn/uploads/1574842489828.png" style="zoom:80%;" />
+![](../img/1574842489828.png)
    
 2. 找出当前方格上、下、左、右所有可到达的格子，看它们是否在OpenList或CloseList当中。如果不在，则将它们加入OpenList，计算相应的G、H、F值，并把当前格子作为它们的父节点
 
-   <img src="http://silencew.cn/uploads/1574843322479.png" style="zoom:80%;" />
+    ![](../img/1574843322479.png)
 
    为什么这一次OpenList只增加了2个格子呢，因为Grid(3, 2)是墙壁，自然不用考虑，而Grid(1, 2)在CloseList中，说明已经检查过了，也不用考虑
 
@@ -71,23 +71,23 @@ F：G和H的综合评估，也就是从起点到达当前格子，在从当前�
 
 1. 找出OpenList中F值最小的方格。由于此时有多个方格的F值相等，任意选择一个即可，如将Grid(2, 3)作为当前方格，并把当前方格移出OpenList，放入CloseList，代表这个格子已经到达并检查过了
 
-   <img src="http://silencew.cn/uploads/1574843786212.png" style="zoom:80%;" />
+    ![](../img/1574843786212.png)
 
 2. 找出当前方格上、下、左、右所有可到达的格子，看它们是否在OpenList中，如果不在，则将它们加入OpenList，计算出响应的G、H、F值，并把当前格子作为它们的“父节点”。
 
-   <img src="http://silencew.cn/uploads/1574843913066.png" style="zoom:80%;" />
-
+    ![](../img/1574843913066.png)
+    
 剩下的就是以前面的方式继续迭代，直到Openlist中出现终点方格为止。
 
 下面仅仅使用图片简单描述一下，方格中的数字代表F值
 
-<img src="http://silencew.cn/uploads/1574844022059.png" style="zoom:80%;" />
+![](../img/1574844022059.png)
 
-<img src="http://silencew.cn/uploads/1574844053978.png" style="zoom:80%;" />
+![](../img/1574844053978.png)
 
 最后只需要顺着终点方格找到它的父节点。。。就能找到一条最佳路径了。
 
-<img src="http://silencew.cn/uploads/1574844138219.png" style="zoom:80%;" />
+![](../img/1574844138219.png)
 
 ###### 代码(结果出错)
 
